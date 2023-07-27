@@ -1,8 +1,12 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualBasic;
+using Discord.Interactions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.CommandLine;
+using Discord;
+using Discord.Commands;
 
 namespace DiscordNetTest
 {
@@ -12,14 +16,25 @@ namespace DiscordNetTest
 
         public async Task MainAsync()
         {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddYamlFile("config.yml")
+                .Build();
+
             using IHost host = Host.CreateDefaultBuilder()
                 .ConfigureServices((_, services) =>
                     services
-                        .AddSingleton(x => new DiscordSocketClient(new DiscordSocketConfig
-                        {
-                            GatewayIntents = GatewayIntents.AllUnprivileged,
-                            AlwaysDownloadUsers = true
-                        })))
+                    .AddSingleton(config)
+                    .AddSingleton(x => new DiscordSocketClient(new DiscordSocketConfig
+                    {
+                        GatewayIntents = GatewayIntents.AllUnprivileged,
+                        AlwaysDownloadUsers = true
+                    }))
+                    .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+                    .AddSingleton<InteractionHandler>()
+                    .AddSingleton(x => new CommandService())
+                    .AddSingleton<PrefixHandler>()
+                    )
                 .Build();
             await RunAsync(host);
         }
@@ -30,6 +45,12 @@ namespace DiscordNetTest
             IServiceProvider provider = serviceScope.ServiceProvider;
 
             var _client = provider.GetRequiredService<DiscordSocketClient>();
+            var _sCommands = provider.GetRequiredService<InteractionService>();
+            await provider.GetRequiredService<InteractionHandler>().InitializeAsync();
+            var config = provider.GetRequiredService<IConfigurationRoot>();
+            var pCommands = provider.GetRequiredService<PrefixHandler>();
+            pCommands.AddModule<DiscordNetTest.Modules.PrefixModule>();
+            await pCommands.InitializeAsync();
 
             _client.Log += async (LogMessage msg) => { Console.WriteLine(msg.Message); };
 
