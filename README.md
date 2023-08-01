@@ -21,6 +21,7 @@ The YamlDotNet version used (8.1.2) is important. The latest is bugged and will 
 config.yml (Must end up in same directory as bot executable)
 Sample config.yml contents below:
 ```
+prefix: "prefix_here"
 testguild: test_guild_id_here
 tokens:
     discord: discord_bot_token_here
