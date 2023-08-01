@@ -21,7 +21,6 @@ namespace DiscordNetTest
         {
             _client.MessageReceived += HandleCommandAsync;
         }
-
         public void AddModule<T>()
         {
             _commands.AddModuleAsync<T>(null);

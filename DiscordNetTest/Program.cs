@@ -53,14 +53,15 @@ namespace DiscordNetTest
             await pCommands.InitializeAsync();
 
             _client.Log += async (LogMessage msg) => { Console.WriteLine(msg.Message); };
+            _sCommands.Log += async (LogMessage msg) => { Console.WriteLine(msg.Message); };
 
             _client.Ready += async () =>
             {
                 Console.WriteLine("Bot ready!");
+                await _sCommands.RegisterCommandsToGuildAsync(UInt64.Parse(config["testGuild"]));
             };
             
-            var token = File.ReadAllText(@"D:\token.txt");
-            await _client.LoginAsync(TokenType.Bot, token);
+            await _client.LoginAsync(TokenType.Bot, config["discord"]);
             await _client.StartAsync();
 
             await Task.Delay(-1);

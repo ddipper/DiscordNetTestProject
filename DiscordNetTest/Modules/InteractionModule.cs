@@ -11,10 +11,20 @@ namespace DiscordNetTest.Modules
 {
     public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
     {
-        [SlashCommand("ping", "Recive a ping message!")]
+        [SlashCommand("ping", "Печатает ПИНГ!")]
         public async Task HandlePingCommand()
         {
             await RespondAsync("PING!"); 
+        }
+
+        [SlashCommand("components", "Демонстрация меню кнопок")]
+        public async Task HanldeComponentCommand()
+        {
+            var button = new ButtonBuilder()
+            {
+                //Label = "Button";
+
+            };
         }
     }
 }
