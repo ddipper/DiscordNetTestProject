@@ -11,10 +11,10 @@ namespace DiscordNetTest
         private readonly InteractionService _commands;
         private readonly IServiceProvider _services;
 
-        public InteractionHandler(DiscordSocketClient client, InteractionService command, IServiceProvider services)
+        public InteractionHandler(DiscordSocketClient client, InteractionService commands, IServiceProvider services)
         {
             _client = client;
-            _commands = command;
+            _commands = commands;
             _services = services;
         }
 
@@ -23,8 +23,26 @@ namespace DiscordNetTest
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
             _client.InteractionCreated += HandleInteraction;
+
+            _commands.SlashCommandExecuted += SlashCommandExecuted;
+            _commands.ContextCommandExecuted += ContextCommandExecuted;
+            _commands.ComponentCommandExecuted += ComponentCommandExecuted;
         }
 
+        private Task ComponentCommandExecuted(ComponentCommandInfo arg1, Discord.IInteractionContext arg2, IResult arg3)
+        {
+            return Task.CompletedTask;
+        }
+
+        private Task ContextCommandExecuted(ContextCommandInfo arg1, Discord.IInteractionContext arg2, IResult arg3)
+        {
+            return Task.CompletedTask;
+        }
+
+        private Task SlashCommandExecuted(SlashCommandInfo arg1, Discord.IInteractionContext arg2, IResult arg3)
+        {
+            return Task.CompletedTask;
+        }
         private async Task HandleInteraction(SocketInteraction arg)
         {
             try
@@ -32,9 +50,12 @@ namespace DiscordNetTest
                 var ctx = new SocketInteractionContext(_client, arg);
                 await _commands.ExecuteCommandAsync(ctx, _services);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex);
+
+                if (arg.Type == InteractionType.ApplicationCommand)
+                    await arg.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
             }
         }
     }
