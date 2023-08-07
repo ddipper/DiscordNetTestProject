@@ -47,6 +47,21 @@ namespace DiscordNetTest.Modules
             await RespondAsync("Выбери действие", components: components.Build());
         }
 
+        [SlashCommand("avatar", "Показывает аватар юзера <3")]
+        public async Task HandleAvatarTask(IUser user)
+        {
+            var embed = new EmbedBuilder()
+            {
+                Color = Color.Green,
+                Title = "You use /avatar",
+                Description = "<@" + $"{user.Id}" + ">" + " avatar",
+                ImageUrl = user.GetAvatarUrl()
+            };
+
+            await ReplyAsync("", false, embed.Build());
+            await RespondAsync("");
+        }
+
         [ComponentInteraction("button")]
         public async Task HandleButtonInput()
         {
@@ -64,8 +79,9 @@ namespace DiscordNetTest.Modules
         public async Task HandlerUserListCommand(IUser user)
         {
             var roles = (user as SocketGuildUser).Roles;
-            string rolesList = string.Empty;
+            string rolesList = $"<@{user.Id}>\n";
             bool first = true;
+
             foreach (var role in roles)
             {
                 if (first)
@@ -76,10 +92,16 @@ namespace DiscordNetTest.Modules
                 rolesList += "<@&" + role.Id + ">" + "\n";
             }
 
-            await RespondAsync($"User {user.Mention} has the following roles:\n" + rolesList);
+            var embedBuilder = new EmbedBuilder()
+            {
+                Color = Color.Green,
+                Title = $"<@{user.Id}> role list",
+                Description = $"{rolesList}"
+            };
+
+            await RespondAsync(embed: embedBuilder.Build(), ephemeral: true);
+            //await RespondAsync($"User {user.Mention} has the following roles:\n" + rolesList);
         }
-
-
 
         [MessageCommand("msg-command")]
         public async Task HandleMessageCommand(IMessage message)

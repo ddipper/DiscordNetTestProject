@@ -8,13 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.NetworkInformation;
 using Discord.WebSocket;
-using System.Security.Cryptography.X509Certificates;
 using System.ComponentModel;
+using System.Threading.Channels;
+using Discord.Commands;
+using System.Reflection;
+
+using static DiscordNetTest.InteractionHandler;
+using System.Windows.Input;
 
 namespace DiscordNetTest.Modules
 {
     public class GetCommands : InteractionModuleBase<SocketInteractionContext>
     {
+        private readonly CommandService command;
+
         private readonly ulong AdminID = 1137441310161240094;
         private readonly ulong CuratorID = 1137441240644857866;
         private readonly ulong MasterID = 1135160306511921192;
@@ -59,5 +66,41 @@ namespace DiscordNetTest.Modules
             await RespondAsync(user.GetAvatarUrl());
         }
 
+        [SlashCommand("get-role", "Дать ролями")]
+        public async Task HandleGetRoleCommand(IUser user, IRole role)
+        {
+            await (user as SocketGuildUser).AddRoleAsync(role.Id);
+
+            await RespondAsync($"User {user.Mention} get role <@&{role.Id}>");
+        }
+
+        [SlashCommand("button-spawner", "Делает кнопочку")]
+        public async Task ButtonSpawner()
+        {
+            var builder = new ComponentBuilder()
+                    .WithButton("label", "custom-id");
+
+            await RespondAsync("Here is a button!", components: builder.Build());
+
+            InteractionHandler._client.ButtonExecuted += MyButtonHandler;
+        }
+
+        public async Task MyButtonHandler(SocketMessageComponent component)
+        {
+            switch (component.Data.CustomId)
+            {
+                case "custom-id":
+                    await RespondAsync($"{component.User.Mention} has clicked the button!");
+                break;
+            }
+        }
+
+        [SlashCommand("remove-role", "Отобрать ролями")]
+        public async Task HandleRemoveRoleCommand(IUser user, IRole role)
+        {
+            await (user as SocketGuildUser).RemoveRoleAsync(role.Id);
+
+            await RespondAsync($"User {user.Mention} remove role <@&{role.Id}>");
+        }
     }
 }

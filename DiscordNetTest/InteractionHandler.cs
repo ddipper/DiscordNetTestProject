@@ -7,7 +7,7 @@ namespace DiscordNetTest
 {
     public class InteractionHandler
     {
-        private readonly DiscordSocketClient _client;
+        public readonly DiscordSocketClient _client;
         private readonly InteractionService _commands;
         private readonly IServiceProvider _services;
 
