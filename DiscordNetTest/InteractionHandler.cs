@@ -3,6 +3,9 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using System.Reflection;
 
+using DiscordNetTest.Modules;
+using System.ComponentModel;
+
 namespace DiscordNetTest
 {
     public class InteractionHandler
@@ -23,6 +26,8 @@ namespace DiscordNetTest
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
             _client.InteractionCreated += HandleInteraction;
+
+            //_client.ButtonExecuted += MyButtonHandler;
 
             _commands.SlashCommandExecuted += SlashCommandExecuted;
             _commands.ContextCommandExecuted += ContextCommandExecuted;
@@ -58,5 +63,7 @@ namespace DiscordNetTest
                     await arg.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
             }
         }
+
+
     }
 }

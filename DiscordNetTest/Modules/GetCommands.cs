@@ -14,7 +14,6 @@ using Discord.Commands;
 using System.Reflection;
 
 using static DiscordNetTest.InteractionHandler;
-using System.Windows.Input;
 
 namespace DiscordNetTest.Modules
 {
@@ -81,8 +80,6 @@ namespace DiscordNetTest.Modules
                     .WithButton("label", "custom-id");
 
             await RespondAsync("Here is a button!", components: builder.Build());
-
-            InteractionHandler._client.ButtonExecuted += MyButtonHandler;
         }
 
         public async Task MyButtonHandler(SocketMessageComponent component)
@@ -91,7 +88,7 @@ namespace DiscordNetTest.Modules
             {
                 case "custom-id":
                     await RespondAsync($"{component.User.Mention} has clicked the button!");
-                break;
+                    break;
             }
         }
 
